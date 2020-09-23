@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.kgc.mapper.CartItemMapper">
+    <resultMap id="cartMap" type="CartItem">
+        <id property="id" column="id"/>
+        <association property="product" column="product_id"
+                     select="cn.kgc.mapper.ProductMapper.selectProductById"/>
+    </resultMap>
+
+
+    <!--新增购物车信息-->
+    <insert id="insertOneItem" parameterType="CartItem">
+        insert into cart(product_id, customer_id, number, create_date) values (#{product.id}, #{customer.id}, #{number}, now())
+    </insert>
+
+    <!--根据用户id和商品id查询购物车里是否已经存在-->
+    <select id="selectByPidCid" resultType="CartItem">
+        select * from cart where product_id = #{productId} and customer_id = #{customerId}
+    </select>
+
+    <!--更新购物车商品数量-->
+    <update id="updateOneItem" parameterType="CartItem">
+        update cart set number = #{number} where id = #{id}
+    </update>
+
+    <!--根据用户查看商品的总数-->
+    <select id="selectItemCount" parameterType="Integer" resultType="Integer">
+        select count(*) from cart where customer_id = #{customerId}
+    </select>
+
+    <!--查询用户所有的购物商品-->
+    <select id="selectItemsByCid" parameterType="Integer" resultMap="cartMap">
+        select * from cart where customer_id = #{customerId}
+    </select>
+
+    <!--删除购物车商品信息-->
+    <delete id="deleteItemById" parameterType="Integer">
+        delete from cart where id = #{id}
+    </delete>
+    
+    <!--通过用户Id customerId删除所有的购物车-->
+    <delete id="deleteItemsByCid" parameterType="Integer">
+        delete from cart where customer_id = #{customerId}
+    </delete>
+</mapper>
